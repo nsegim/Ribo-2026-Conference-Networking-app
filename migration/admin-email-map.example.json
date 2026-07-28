@@ -1,0 +1,5 @@
+{
+  "_comment": "Copy this file to admin-email-map.json (gitignored) and fill in a real email for every legacy admin username. The legacy Admin model has no email field, so this mapping cannot be inferred automatically — see the migration mapping doc, decision on Admin account migration.",
+  "jdoe": "jdoe@example.org",
+  "asmith": "asmith@example.org"
+}
