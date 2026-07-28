@@ -202,6 +202,15 @@ export interface Attendee {
   profileImage?: (number | null) | Media;
   bio?: string | null;
   /**
+   * Topics/interests shown on the networking profile, e.g. "Reinsurance", "InsurTech".
+   */
+  interests?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Attendee-controlled: whether they appear in the networking directory to other attendees.
    */
   showInDirectory?: boolean | null;
@@ -461,6 +470,12 @@ export interface AttendeesSelect<T extends boolean = true> {
   country?: T;
   profileImage?: T;
   bio?: T;
+  interests?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
   showInDirectory?: T;
   email?: T;
   phone?: T;

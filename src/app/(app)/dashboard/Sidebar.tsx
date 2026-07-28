@@ -15,6 +15,8 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard/sessions', label: 'Sessions', icon: 'bi-calendar-event', roles: ['superadmin', 'admin'] },
   { href: '/dashboard/check-in', label: 'Check-In', icon: 'bi-qr-code-scan', roles: ['superadmin', 'admin', 'staff'] },
   { href: '/dashboard/magic-links', label: 'Magic Links', icon: 'bi-link-45deg', roles: ['superadmin', 'admin'] },
+  { href: '/dashboard/messages', label: 'Messages', icon: 'bi-chat-dots', roles: ['superadmin', 'admin'] },
+  { href: '/dashboard/reports', label: 'Reports', icon: 'bi-bar-chart', roles: ['superadmin', 'admin'] },
 ]
 
 export default function Sidebar({ role, fullName }: { role: AdminRole; fullName: string }) {

@@ -1456,6 +1456,11 @@
     to-snake-case "1.0.0"
     uuid "13.0.2"
 
+"@payloadcms/email-resend@3.86.0":
+  version "3.86.0"
+  resolved "https://registry.yarnpkg.com/@payloadcms/email-resend/-/email-resend-3.86.0.tgz#be7302fa04d34d59a20b7c5a587458afaaee53f4"
+  integrity sha512-hasyTbxeiHStVAAm+2pVvuT9xT/GI51UBphZm2+tMmlJXbQa8LyYPbpR+F0nx5Uam/nsXlFSuh21JQgX7ETfQw==
+
 "@payloadcms/graphql@3.86.0":
   version "3.86.0"
   resolved "https://registry.yarnpkg.com/@payloadcms/graphql/-/graphql-3.86.0.tgz#f53e6d4633fb165e0c6f1fc20967cf4e34928438"

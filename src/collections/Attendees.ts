@@ -63,9 +63,9 @@ export const Attendees: CollectionConfig = {
       admin: { description: 'Formerly "title".' },
       access: { update: isAdminOrSuperadmin },
     },
-    { name: 'country', type: 'text', access: { update: isAdminOrSuperadmin } },
 
     // --- Self-editable networking-profile fields (Phase 5: attendee manages their own profile) ---
+    { name: 'country', type: 'text', access: { update: isSelfOrAdminUpdate } },
     {
       name: 'profileImage',
       type: 'upload',
