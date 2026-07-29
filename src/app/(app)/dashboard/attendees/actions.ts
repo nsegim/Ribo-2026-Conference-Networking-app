@@ -38,6 +38,12 @@ function splitFullName(fullName: string): { firstName: string; lastName: string 
   return { firstName: parts[0] || fullName, lastName: parts.slice(1).join(' ') || parts[0] || fullName }
 }
 
+// The external registration system (ribo.rw) prints a QR code on physical badges that encodes a
+// verification URL, not an opaque code of our own choosing — confirmed live: a real badge scan
+// failed because our beforeValidate hook had generated an unrelated internal QR value instead of
+// matching what's actually printed. `row.id` is that system's own registrant id (its `id` column).
+const EXTERNAL_QR_BASE_URL = 'https://ribo.rw/verify-registration/?id='
+
 type NormalizedRow = {
   email: string
   firstName: string
@@ -48,6 +54,7 @@ type NormalizedRow = {
   country: string | null
   category: Category
   showInDirectory: boolean
+  qrCode?: string
 }
 
 function normalizeCsvRow(row: Record<string, string>): NormalizedRow | null {
@@ -66,6 +73,7 @@ function normalizeCsvRow(row: Record<string, string>): NormalizedRow | null {
   if (!email || !firstName || !lastName || !company || !position) return null
 
   const networking = row.networking?.trim().toLowerCase()
+  const externalId = row.id?.trim()
 
   return {
     email,
@@ -77,6 +85,10 @@ function normalizeCsvRow(row: Record<string, string>): NormalizedRow | null {
     country: row.country?.trim() || null,
     category: normalizeCategory(row.category),
     showInDirectory: networking ? networking === 'yes' || networking === 'true' : true,
+    // Matches what's physically printed on badges from this source system. If absent, the
+    // Attendees collection's own beforeValidate hook auto-generates an internal QR code instead —
+    // fine for attendees who don't have a pre-existing external badge.
+    ...(externalId ? { qrCode: `${EXTERNAL_QR_BASE_URL}${externalId}` } : {}),
   }
 }
 
@@ -200,39 +212,61 @@ export async function importAttendeesCsv(formData: FormData): Promise<ImportResu
   const errors: string[] = []
   let imported = 0
 
-  for (let i = 0; i < rows.length; i++) {
+  // Normalize every row up front so the "missing fields" errors don't need any DB round-trip.
+  const candidates: { rowNum: number; row: NormalizedRow }[] = []
+  rows.forEach((raw, i) => {
     const rowNum = i + 2 // account for header row + 1-index
-    const normalized = normalizeCsvRow(rows[i])
-
+    const normalized = normalizeCsvRow(raw)
     if (!normalized) {
       errors.push(
         `Row ${rowNum}: missing required field(s) — need email, a name (firstName+lastName or full_name), ` +
           `company (or organization), and position (or title)`,
       )
-      continue
+      return
     }
+    candidates.push({ rowNum, row: normalized })
+  })
 
-    const existing = await payload.find({
-      collection: 'attendees',
-      where: { email: { equals: normalized.email } },
-      limit: 1,
-      overrideAccess: true,
+  // One query for all existing emails instead of one query PER row — this is what actually made
+  // a 205-row import take ~5 minutes with no feedback (a real incident, not hypothetical): ~400+
+  // sequential round-trips to a remote Postgres instance, one row at a time.
+  const existingResult =
+    candidates.length > 0
+      ? await payload.find({
+          collection: 'attendees',
+          where: { email: { in: candidates.map((c) => c.row.email) } },
+          limit: candidates.length,
+          depth: 0,
+          overrideAccess: true,
+        })
+      : { docs: [] }
+  const existingEmails = new Set(existingResult.docs.map((a) => a.email.toLowerCase()))
+
+  const toCreate = candidates.filter(({ rowNum, row }) => {
+    if (existingEmails.has(row.email.toLowerCase())) {
+      errors.push(`Row ${rowNum}: attendee with email ${row.email} already exists`)
+      return false
+    }
+    return true
+  })
+
+  // Creates still go through Payload's own create() (hooks, validation) one at a time, but in
+  // concurrent batches rather than fully sequential — bounded to stay under Postgres's default
+  // connection pool size rather than firing all of them at once.
+  const BATCH_SIZE = 8
+  for (let i = 0; i < toCreate.length; i += BATCH_SIZE) {
+    const batch = toCreate.slice(i, i + BATCH_SIZE)
+    const results = await Promise.allSettled(
+      batch.map(({ row }) => payload.create({ collection: 'attendees', overrideAccess: true, data: row })),
+    )
+    results.forEach((result, idx) => {
+      if (result.status === 'fulfilled') {
+        imported++
+      } else {
+        const { rowNum } = batch[idx]
+        errors.push(`Row ${rowNum}: ${result.reason instanceof Error ? result.reason.message : 'failed to create'}`)
+      }
     })
-    if (existing.docs.length > 0) {
-      errors.push(`Row ${rowNum}: attendee with email ${normalized.email} already exists`)
-      continue
-    }
-
-    try {
-      await payload.create({
-        collection: 'attendees',
-        overrideAccess: true,
-        data: normalized,
-      })
-      imported++
-    } catch (err) {
-      errors.push(`Row ${rowNum}: ${err instanceof Error ? err.message : 'failed to create'}`)
-    }
   }
 
   revalidatePath('/dashboard/attendees')

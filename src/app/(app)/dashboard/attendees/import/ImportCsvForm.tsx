@@ -68,6 +68,13 @@ export default function ImportCsvForm() {
           )}
         </div>
 
+        {pending && (
+          <Alert variant="info" className="d-flex align-items-center">
+            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+            Importing — for a few hundred rows this can take a minute or two. Please don&apos;t close this tab.
+          </Alert>
+        )}
+
         {result && (
           <Alert variant={result.success && result.imported > 0 ? 'success' : 'warning'}>
             {result.success ? (
