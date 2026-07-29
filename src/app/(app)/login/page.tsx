@@ -44,8 +44,8 @@ function LoginForm() {
   }
 
   return (
-    <Container className="mt-5">
-      <Row className="justify-content-center">
+    <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
+      <Row className="justify-content-center w-100">
         <Col md={6} lg={4}>
           <Card>
             <Card.Body>

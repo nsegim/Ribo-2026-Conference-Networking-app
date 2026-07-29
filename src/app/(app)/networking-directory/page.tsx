@@ -33,6 +33,7 @@ export default async function NetworkingDirectoryPage({
           { id: { not_equals: attendee.id } },
           { showInDirectory: { equals: true } },
           { isBlocked: { equals: false } },
+          { checkedInAt: { exists: true } },
           {
             or: [
               { firstName: { contains: search } },
@@ -48,6 +49,7 @@ export default async function NetworkingDirectoryPage({
           { id: { not_equals: attendee.id } },
           { showInDirectory: { equals: true } },
           { isBlocked: { equals: false } },
+          { checkedInAt: { exists: true } },
         ],
       }
 
