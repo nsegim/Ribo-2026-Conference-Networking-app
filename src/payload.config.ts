@@ -1,5 +1,6 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
+import { payloadCloudinaryPlugin } from '@jhb.software/payload-cloudinary-plugin'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -23,6 +24,14 @@ const dirname = path.dirname(filename)
 // existing SPF/DKIM records from other mail senders.
 const emailConfigured = Boolean(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD)
 
+// Media uploads (attendee profile photos) default to local disk, which doesn't survive Vercel's
+// ephemeral serverless filesystem — files can vanish depending on which instance serves a later
+// request. Cloudinary is only wired in when credentials are present so local dev still works
+// without an internet-dependent upload target.
+const cloudinaryConfigured = Boolean(
+  process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET,
+)
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -32,6 +41,23 @@ export default buildConfig({
   collections: [Users, Attendees, Media, MagicLinks, Sessions, SessionAttendance, Messages],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
+  plugins: [
+    ...(cloudinaryConfigured
+      ? [
+          payloadCloudinaryPlugin({
+            cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
+            credentials: {
+              apiKey: process.env.CLOUDINARY_API_KEY!,
+              apiSecret: process.env.CLOUDINARY_API_SECRET!,
+            },
+            collections: {
+              media: true,
+            },
+            folder: 'ribo2026-conference',
+          }),
+        ]
+      : []),
+  ],
   ...(emailConfigured
     ? {
         email: nodemailerAdapter({

@@ -14,13 +14,16 @@
     "migrate:all": "node --env-file=.env.local --import tsx migration/index.mts"
   },
   "dependencies": {
+    "@jhb.software/payload-cloudinary-plugin": "0.4.0",
     "@payloadcms/db-postgres": "3.86.0",
     "@payloadcms/email-nodemailer": "3.86.0",
     "@payloadcms/next": "3.86.0",
+    "@payloadcms/plugin-cloud-storage": "3.86.0",
     "@payloadcms/richtext-lexical": "3.86.0",
     "@payloadcms/ui": "3.86.0",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
+    "cloudinary": "^2.10.0",
     "cross-env": "^10.1.0",
     "csv-parse": "^7.0.1",
     "date-fns": "^4.4.0",
