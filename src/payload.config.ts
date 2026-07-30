@@ -71,11 +71,13 @@ export default buildConfig({
               user: process.env.GMAIL_USER!,
               pass: process.env.GMAIL_APP_PASSWORD!,
             },
-          },
-          tls: {
+            
+             tls: {
             // This allows the connection even though the host names do not match
             rejectUnauthorized: false
            }
+          },
+         
         }),
       }
     : {}),
