@@ -72,6 +72,10 @@ export default buildConfig({
               pass: process.env.GMAIL_APP_PASSWORD!,
             },
           },
+          tls: {
+            // This allows the connection even though the host names do not match
+            rejectUnauthorized: false
+           }
         }),
       }
     : {}),
@@ -81,6 +85,10 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URI,
+      // Neon's free-tier compute auto-suspends after ~5min idle; the first query after that can
+      // take 10-15s to wake it back up. node-postgres's own default is effectively no timeout, but
+      // being explicit here means a slow wake is tolerated deliberately rather than by accident.
+      connectionTimeoutMillis: 20000,
     },
   }),
   sharp,
