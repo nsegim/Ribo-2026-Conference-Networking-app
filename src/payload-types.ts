@@ -199,6 +199,14 @@ export interface Attendee {
    */
   position: string;
   country?: string | null;
+  /**
+   * e.g. "Reinsurance", "Insurance Brokerage" — shown and filterable in the networking directory.
+   */
+  industry?: string | null;
+  /**
+   * Attendee-controlled: shown as a status indicator on their directory card.
+   */
+  networkingStatus?: ('open' | 'busy') | null;
   profileImage?: (number | null) | Media;
   bio?: string | null;
   /**
@@ -468,6 +476,8 @@ export interface AttendeesSelect<T extends boolean = true> {
   company?: T;
   position?: T;
   country?: T;
+  industry?: T;
+  networkingStatus?: T;
   profileImage?: T;
   bio?: T;
   interests?:

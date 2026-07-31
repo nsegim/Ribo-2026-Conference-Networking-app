@@ -101,6 +101,9 @@ export async function updateProfile(formData: FormData): Promise<ActionResult> {
   try {
     const bio = String(formData.get('bio') || '').slice(0, 500)
     const country = String(formData.get('country') || '').trim() || null
+    const industry = String(formData.get('industry') || '').trim() || null
+    const networkingStatusRaw = String(formData.get('networkingStatus') || 'open')
+    const networkingStatus = networkingStatusRaw === 'busy' ? 'busy' : 'open'
     const showInDirectory = formData.get('showInDirectory') === 'on'
     const interestsRaw = String(formData.get('interests') || '')
     const interests = interestsRaw
@@ -136,6 +139,8 @@ export async function updateProfile(formData: FormData): Promise<ActionResult> {
       data: {
         bio,
         country,
+        industry,
+        networkingStatus,
         showInDirectory,
         interests,
         ...(profileImageId ? { profileImage: profileImageId } : {}),

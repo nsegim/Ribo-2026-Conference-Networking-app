@@ -15,6 +15,8 @@ export default async function ProfilePage() {
         category: attendee.category,
         qrCode: attendee.qrCode ?? null,
         country: attendee.country ?? '',
+        industry: attendee.industry ?? '',
+        networkingStatus: attendee.networkingStatus ?? 'open',
         bio: attendee.bio ?? '',
         showInDirectory: attendee.showInDirectory ?? true,
         interests: (attendee.interests ?? []).map((i) => i.label).join(', '),

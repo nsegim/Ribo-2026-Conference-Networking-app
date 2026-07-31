@@ -67,6 +67,23 @@ export const Attendees: CollectionConfig = {
     // --- Self-editable networking-profile fields (Phase 5: attendee manages their own profile) ---
     { name: 'country', type: 'text', access: { update: isSelfOrAdminUpdate } },
     {
+      name: 'industry',
+      type: 'text',
+      admin: { description: 'e.g. "Reinsurance", "Insurance Brokerage" — shown and filterable in the networking directory.' },
+      access: { update: isSelfOrAdminUpdate },
+    },
+    {
+      name: 'networkingStatus',
+      type: 'select',
+      defaultValue: 'open',
+      options: [
+        { label: 'Open to connect', value: 'open' },
+        { label: 'Not available right now', value: 'busy' },
+      ],
+      admin: { description: 'Attendee-controlled: shown as a status indicator on their directory card.' },
+      access: { update: isSelfOrAdminUpdate },
+    },
+    {
       name: 'profileImage',
       type: 'upload',
       relationTo: 'media',

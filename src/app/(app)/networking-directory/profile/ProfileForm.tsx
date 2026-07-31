@@ -14,6 +14,8 @@ type ProfileData = {
   category: string
   qrCode: string | null
   country: string
+  industry: string
+  networkingStatus: string
   bio: string
   showInDirectory: boolean
   interests: string
@@ -97,9 +99,34 @@ export default function ProfileForm({ attendee }: { attendee: ProfileData }) {
                 <Form.Text className="text-muted">Comma-separated, up to 15</Form.Text>
               </Form.Group>
 
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Country</Form.Label>
+                    <Form.Control name="country" defaultValue={attendee.country} />
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Industry</Form.Label>
+                    <Form.Control
+                      name="industry"
+                      defaultValue={attendee.industry}
+                      placeholder="e.g. Reinsurance"
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+
               <Form.Group className="mb-3">
-                <Form.Label>Country</Form.Label>
-                <Form.Control name="country" defaultValue={attendee.country} />
+                <Form.Label>Networking availability</Form.Label>
+                <Form.Select name="networkingStatus" defaultValue={attendee.networkingStatus}>
+                  <option value="open">Open to connect</option>
+                  <option value="busy">Not available right now</option>
+                </Form.Select>
+                <Form.Text className="text-muted">
+                  Shown as a status indicator on your directory card.
+                </Form.Text>
               </Form.Group>
 
               <Form.Check
