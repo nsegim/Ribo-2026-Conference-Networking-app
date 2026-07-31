@@ -1,0 +1,64 @@
+/* RIBO brand colors, pulled from the actual ribo.rw logo/site (green tree mark, not Bootstrap's
+   default blue). Overrides Bootstrap's precompiled utility classes directly rather than relying on
+   CSS custom properties alone, since bootstrap.min.css hardcodes hover/focus shades at Sass-compile
+   time and won't retint correctly from --bs-primary overrides by themselves. */
+
+:root {
+  --bs-primary: #76c042;
+  --bs-primary-rgb: 118, 192, 66;
+  --bs-link-color: #325f12;
+  --bs-link-hover-color: #5a8d1d;
+}
+
+a {
+  color: #325f12;
+}
+a:hover {
+  color: #5a8d1d;
+}
+
+.btn-primary {
+  background-color: #76c042;
+  border-color: #76c042;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: #5a8d1d !important;
+  border-color: #5a8d1d !important;
+}
+
+.btn-outline-primary {
+  color: #325f12;
+  border-color: #76c042;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+  background-color: #76c042 !important;
+  border-color: #76c042 !important;
+  color: #ffffff !important;
+}
+
+.text-primary {
+  color: #325f12 !important;
+}
+.border-primary {
+  border-color: #76c042 !important;
+}
+.bg-primary {
+  background-color: #76c042 !important;
+}
+
+.navbar.bg-dark {
+  background-color: #325f12 !important;
+}
+
+.form-check-input:checked {
+  background-color: #76c042;
+  border-color: #76c042;
+}
+.form-check-input:focus {
+  border-color: #76c042;
+  box-shadow: 0 0 0 0.25rem rgba(118, 192, 66, 0.25);
+}

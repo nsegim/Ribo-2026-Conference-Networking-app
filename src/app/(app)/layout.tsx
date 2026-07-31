@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
+import './theme.css'
 import BootstrapClient from './BootstrapClient'
 
 // This is a Next.js "multiple root layouts" setup: (app) and the sibling (payload) route group
