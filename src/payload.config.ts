@@ -1,5 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
-import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
+import { resendAdapter } from '@payloadcms/email-resend'
 import { payloadCloudinaryPlugin } from '@jhb.software/payload-cloudinary-plugin'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
@@ -18,11 +18,14 @@ import { Messages } from './collections/Messages'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-// Only activate real email when Gmail SMTP credentials are actually present. With no email config
-// at all, Payload uses its built-in console-logging adapter. Using Gmail/nodemailer (not Resend)
-// so no DNS/domain verification is needed on ribo.rw — avoids risking conflicts with that domain's
-// existing SPF/DKIM records from other mail senders.
-const emailConfigured = Boolean(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD)
+// Only activate real email when a Resend API key is actually present. With no email config at
+// all, Payload uses its built-in console-logging adapter. Switched from Gmail/nodemailer back to
+// Resend — the VPS's network (hostblueinc.com) transparently intercepts outbound SMTP to
+// smtp.gmail.com and answers with its own server, so no Gmail app password would ever actually
+// reach Google from that host. Resend's HTTPS API isn't affected by that SMTP-specific
+// interception. Sending domain is the conference.ribo.rw subdomain (not root ribo.rw), so its
+// SPF/DKIM records are isolated from whatever mail setup already exists on the root domain.
+const emailConfigured = Boolean(process.env.RESEND_API_KEY)
 
 // Media uploads (attendee profile photos) default to local disk, which doesn't survive Vercel's
 // ephemeral serverless filesystem — files can vanish depending on which instance serves a later
@@ -60,24 +63,10 @@ export default buildConfig({
   ],
   ...(emailConfigured
     ? {
-        email: nodemailerAdapter({
-          defaultFromAddress: process.env.GMAIL_USER!,
+        email: resendAdapter({
+          apiKey: process.env.RESEND_API_KEY!,
+          defaultFromAddress: process.env.RESEND_FROM_ADDRESS || 'onboarding@resend.dev',
           defaultFromName: 'RIBO2026 Conference',
-          transportOptions: {
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: {
-              user: process.env.GMAIL_USER!,
-              pass: process.env.GMAIL_APP_PASSWORD!,
-            },
-            
-             tls: {
-            // This allows the connection even though the host names do not match
-            rejectUnauthorized: false
-           }
-          },
-         
         }),
       }
     : {}),
