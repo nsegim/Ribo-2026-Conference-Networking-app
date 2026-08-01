@@ -37,12 +37,17 @@ export default async function NetworkingDirectoryPage({
   // Base pool: every filter/stat/option-list below is derived from this same definition of
   // "who's visible in the directory" so the numbers on the hero and the filter dropdowns always
   // agree with what the grid actually shows before any user-chosen filter is applied.
+  //
+  // Gated on isConfirmed (organizer has vetted the registration), not checkedInAt (physically
+  // walked up to the venue) — deliberate product decision: networking should open as soon as a
+  // registration is confirmed, not wait for physical check-in, so attendees can arrange meetings
+  // ahead of arriving rather than only during the event itself.
   const basePool: Where = {
     and: [
       { id: { not_equals: attendee.id } },
       { showInDirectory: { equals: true } },
       { isBlocked: { equals: false } },
-      { checkedInAt: { exists: true } },
+      { isConfirmed: { equals: true } },
     ],
   }
 

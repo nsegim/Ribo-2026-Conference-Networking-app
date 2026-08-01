@@ -4,8 +4,36 @@ import config from '@payload-config'
 import { getPayload } from 'payload'
 import { revalidatePath } from 'next/cache'
 import { requireAttendee } from '@/lib/getCurrentAttendee'
+import { createAndSendMagicLink } from '@/lib/magicLink'
 
 export type ActionResult = { success: true } | { success: false; error: string }
+
+// Deliberately not gated by requireAttendee — this is exactly for people who don't have a valid
+// session. Always returns success regardless of whether the email matches a real attendee, so
+// this can't be used to enumerate who's registered.
+export async function requestMagicLink(email: string): Promise<ActionResult> {
+  const trimmed = email.trim().toLowerCase()
+  if (!trimmed) return { success: false, error: 'Email is required' }
+
+  const payload = await getPayload({ config })
+
+  try {
+    const result = await payload.find({
+      collection: 'attendees',
+      where: { email: { equals: trimmed } },
+      limit: 1,
+      overrideAccess: true,
+    })
+    const attendee = result.docs[0]
+    if (attendee && !attendee.isBlocked) {
+      await createAndSendMagicLink(payload, attendee)
+    }
+  } catch {
+    // Swallowed deliberately — this endpoint always reports success to the caller either way.
+  }
+
+  return { success: true }
+}
 
 export async function sendMessage(recipientId: number, subject: string, body: string): Promise<ActionResult> {
   const sender = await requireAttendee()

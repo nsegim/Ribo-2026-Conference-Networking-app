@@ -16,8 +16,8 @@ export default function DirectoryHero({ stats }: { stats: DirectoryStats }) {
       <div className="directory-hero-inner">
         <h1 className="directory-hero-title">Find your next connection</h1>
         <p className="directory-hero-subtitle">
-          Browse everyone checked in to RIBO2026 and reach out directly — no introductions
-          needed. Every conversation you start here can outlast the conference.
+          Browse everyone registered for RIBO2026 and reach out directly — no introductions
+          needed. Start planning meetups before you even arrive.
         </p>
         <div className="directory-hero-stats">
           {tiles.map((tile) => (

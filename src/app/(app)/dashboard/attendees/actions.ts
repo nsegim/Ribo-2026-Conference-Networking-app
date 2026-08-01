@@ -54,6 +54,7 @@ type NormalizedRow = {
   country: string | null
   category: Category
   showInDirectory: boolean
+  isConfirmed: boolean
   qrCode?: string
 }
 
@@ -85,6 +86,11 @@ function normalizeCsvRow(row: Record<string, string>): NormalizedRow | null {
     country: row.country?.trim() || null,
     category: normalizeCategory(row.category),
     showInDirectory: networking ? networking === 'yes' || networking === 'true' : true,
+    // CSV imports come from the official ribo.rw registration system, so they're already a
+    // vetted registration — auto-confirming lets them appear in the networking directory
+    // immediately (see the isConfirmed-based directory gate) rather than needing an admin to
+    // manually confirm all ~200 rows one at a time after every import.
+    isConfirmed: true,
     // Matches what's physically printed on badges from this source system. If absent, the
     // Attendees collection's own beforeValidate hook auto-generates an internal QR code instead —
     // fine for attendees who don't have a pre-existing external badge.
@@ -110,6 +116,8 @@ export async function createAttendee(formData: FormData): Promise<ActionResult> 
         position: String(formData.get('position') || ''),
         phone: String(formData.get('phone') || '') || null,
         category: parseCategory(formData.get('category')),
+        // An admin manually creating the record is itself the act of confirming it.
+        isConfirmed: true,
       },
     })
     revalidatePath('/dashboard/attendees')
